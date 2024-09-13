@@ -1,0 +1,6 @@
+#!/bin/bash
+echo "$1"
+LOWERCASE=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+echo "$LOWERCASE"
+#run it like ./name_of_file.sh word_to_be_converted_to_lowercase
+#ex- ./case-conversion.sh TEST

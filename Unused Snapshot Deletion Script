@@ -1,0 +1,26 @@
+#!/bin/bash
+echo "Fetching all snapshots owned by self..."
+ALL_SNAPSHOTS=$(aws ec2 describe-snapshots --owner-ids self --query "Snapshots[*].SnapshotId" --output text)
+
+# Get all snapshots that are currently associated with AMIs
+echo "Fetching all snapshots associated with any AMI..."
+USED_SNAPSHOTS=$(aws ec2 describe-images --owners self --query "Images[*].BlockDeviceMappings[*].Ebs.SnapshotId" --output text)
+
+#converting them into arrays
+ALL_SNAPSHOT_ARRAY=($ALL_SNAPSHOTS)
+USED_SNAPSHOT_ARRAY=($USED_SNAPSHOTS)
+
+#iterating over all snapshots and checking if they are in the used snapshot array...
+for SNAPSHOT_ID in "${ALL_SNAPSHOT_ARRAY[@]}"; do
+    echo "Processing snapshot: $SNAPSHOT_ID"  # Print the current snapshot ID
+    if [[ ! " ${USED_SNAPSHOT_ARRAY[@]} " =~ " ${SNAPSHOT_ID} " ]]; then
+#deleting unused snapshots
+        echo "Snapshot $SNAPSHOT_ID is not associated with any AMI. Deleting..."
+        
+         aws ec2 delete-snapshot --snapshot-id "$SNAPSHOT_ID"
+    else
+        echo "Snapshot $SNAPSHOT_ID is still in use by an AMI."
+    fi
+done
+
+echo "Unused snapshots deletion process completed."

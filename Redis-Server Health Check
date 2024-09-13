@@ -1,3 +1,4 @@
+#!/bin/bash
 # Function to check Redis status
 check_redis() {
   redis-cli -h localhost -p 6379 ping | grep -q "PONG"
@@ -6,12 +7,12 @@ check_redis() {
 
 # Check Redis status
 if ! check_redis; then
-  echo "Redis is down, attempting restart..."
+  echo "Redis is down, attempting to restart..."
 
   # Restart Redis service
   sudo systemctl restart redis-server
 
-  # Check status again after restart
+  # recheck status after restart
   if check_redis; then
     echo "Redis is up now."
   else

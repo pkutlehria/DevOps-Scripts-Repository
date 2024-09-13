@@ -1,0 +1,22 @@
+# Function to check Redis status
+check_redis() {
+  redis-cli -h localhost -p 6379 ping | grep -q "PONG"
+  return $?
+}
+
+# Check Redis status
+if ! check_redis; then
+  echo "Redis is down, attempting restart..."
+
+  # Restart Redis service
+  sudo systemctl restart redis-server
+
+  # Check status again after restart
+  if check_redis; then
+    echo "Redis is up now."
+  else
+    echo "Failed to restart Redis."
+  fi
+else
+  echo "Redis is running."
+fi
